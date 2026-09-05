@@ -1,0 +1,16 @@
+[package]
+name = "avenix_macros"
+version = "0.1.0"
+edition = "2024"
+description = "A helper macros crate for avenix"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ArjitSinghLodhi/avenix_macros"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0.107"
+quote = "1.0.47"
+syn = "3.0.4"
