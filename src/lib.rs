@@ -5,10 +5,7 @@ mod macros {
     pub mod query_filter;
     pub mod query_data;
     pub mod system_param;
-    pub mod schedule_label;
 }
-
-
 
 use proc_macro::TokenStream;
 
@@ -30,9 +27,4 @@ pub fn derive_world_query(input: TokenStream) -> TokenStream {
 #[proc_macro_derive(SystemParam, attributes(avenix))]
 pub fn derive_system_param(input: TokenStream) -> TokenStream {
     macros::system_param::derive_system_param_impl(input)
-}
-
-#[proc_macro_derive(ScheduleLabel, attributes(avenix))]
-pub fn derive_schedule_label(input: TokenStream) -> TokenStream {
-    macros::schedule_label::derive_schedule_label_impl(input)
 }
