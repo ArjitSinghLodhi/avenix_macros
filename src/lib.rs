@@ -5,9 +5,27 @@ mod macros {
     pub mod query_filter;
     pub mod query_data;
     pub mod system_param;
+    pub mod component;
+    pub mod resource;
+    pub mod event;
 }
 
 use proc_macro::TokenStream;
+
+#[proc_macro_derive(Component)]
+pub fn derive_component(input: TokenStream) -> TokenStream {
+    macros::component::derive_component_impl(input)
+}
+
+#[proc_macro_derive(Resource)]
+pub fn derive_resource(input: TokenStream) -> TokenStream {
+    macros::resource::derive_resource_impl(input)
+}
+
+#[proc_macro_derive(Event)] 
+pub fn derive_event(input: TokenStream) -> TokenStream {
+    macros::event::derive_event_impl(input)
+}
 
 #[proc_macro_derive(ComponentBundle, attributes(avenix))]
 pub fn derive_bundle(input: TokenStream) -> TokenStream {

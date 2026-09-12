@@ -66,17 +66,17 @@ pub fn derive_filter_impl(input: TokenStream) -> TokenStream {
 
 
     let expanded = quote! {
-        impl #impl_generics ::avenix::query::filter::QueryFilter for #name #ty_generics #where_clause {
+        impl #impl_generics ::avenix::ecs::query::filter::QueryFilter for #name #ty_generics #where_clause {
             #[inline(always)]
             fn matches(types: &::avenix::extensions::AccessHashSet<::std::any::TypeId>) -> bool {
                 #link_fields_check
 
-                <( #(#field_types,)* ) as ::avenix::query::filter::QueryFilter>::matches(types)
+                <( #(#field_types,)* ) as ::avenix::ecs::query::filter::QueryFilter>::matches(types)
             }
 
             #[inline(always)]
             fn matches_negated(types: &::avenix::extensions::AccessHashSet<::std::any::TypeId>) -> bool {
-                <( #(#field_types,)* ) as ::avenix::query::filter::QueryFilter>::matches_negated(types)
+                <( #(#field_types,)* ) as ::avenix::ecs::query::filter::QueryFilter>::matches_negated(types)
             }
 
             #[inline(always)]
@@ -84,7 +84,7 @@ pub fn derive_filter_impl(input: TokenStream) -> TokenStream {
                 withs: &mut ::avenix::extensions::AccessVec<::std::any::TypeId>,
                 withouts: &mut ::avenix::extensions::AccessVec<::std::any::TypeId>,
             ) {
-                <( #(#field_types,)* ) as ::avenix::query::filter::QueryFilter>::collect_filter(withs, withouts);
+                <( #(#field_types,)* ) as ::avenix::ecs::query::filter::QueryFilter>::collect_filter(withs, withouts);
             }
 
             #[inline(always)]
@@ -92,7 +92,7 @@ pub fn derive_filter_impl(input: TokenStream) -> TokenStream {
                 archetype: &::avenix::extensions::Archetype,
                 indices: &mut ::std::vec::Vec<usize>,
             ) {
-                <( #(#field_types,)* ) as ::avenix::query::filter::QueryFilter>::filter_indices(archetype, indices);
+                <( #(#field_types,)* ) as ::avenix::ecs::query::filter::QueryFilter>::filter_indices(archetype, indices);
             }
         }
     };

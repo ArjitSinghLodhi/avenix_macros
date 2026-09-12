@@ -1,0 +1,15 @@
+use proc_macro::TokenStream;
+use syn::{DeriveInput, parse_macro_input};
+use quote::quote;
+
+pub(crate) fn derive_component_impl(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = input.ident;
+    let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
+
+    let expanded = quote! {
+        impl #impl_generics avenix::ecs::Component for #name #ty_generics #where_clause {}
+    };
+
+    TokenStream::from(expanded)
+}

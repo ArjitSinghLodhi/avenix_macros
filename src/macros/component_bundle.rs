@@ -50,7 +50,7 @@ pub fn derive_bundle_impl(input: TokenStream) -> TokenStream {
     };
 
     let expanded = quote! {
-        impl #impl_generics ::avenix::commands::bundle::ComponentBundle for #name #ty_generics #where_clause {
+        impl #impl_generics ::avenix::ecs::commands::bundle::ComponentBundle for #name #ty_generics #where_clause {
             const TYPE_IDS: &'static [::std::any::TypeId] = &[
                 #( ::std::any::TypeId::of::<#types>() ),*
             ];
@@ -62,14 +62,14 @@ pub fn derive_bundle_impl(input: TokenStream) -> TokenStream {
 
             #[inline(always)]
             fn create_empty_columns(columns: &mut ::avenix::indexmap::IndexMap<::std::any::TypeId, ::avenix::extensions::ComponentColumn, ::avenix::fxhash::FxBuildHasher>) {
-                <(#(#types,)*) as ::avenix::commands::bundle::ComponentBundle>::create_empty_columns(columns);
+                <(#(#types,)*) as ::avenix::ecs::commands::bundle::ComponentBundle>::create_empty_columns(columns);
             }
 
             #[inline(always)]
             fn push_to_archetype(self, archetype: &mut ::avenix::extensions::Archetype) {
                 #destructure
                 let tuple_data = (#(#tuple_bindings,)*);
-                ::avenix::commands::bundle::ComponentBundle::push_to_archetype(tuple_data, archetype);
+                ::avenix::ecs::commands::bundle::ComponentBundle::push_to_archetype(tuple_data, archetype);
             }
 
             #[inline(always)]
@@ -77,7 +77,7 @@ pub fn derive_bundle_impl(input: TokenStream) -> TokenStream {
                 #destructure
                 let tuple_data = (#(#tuple_bindings,)*);
                 unsafe {
-                    ::avenix::commands::bundle::ComponentBundle::insert_to_archetype(tuple_data, archetype, row_idx);
+                    ::avenix::ecs::commands::bundle::ComponentBundle::insert_to_archetype(tuple_data, archetype, row_idx);
                 }
             }
 
