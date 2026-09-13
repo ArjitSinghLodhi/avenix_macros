@@ -200,7 +200,7 @@ pub fn derive_query_data_impl(input: TokenStream) -> TokenStream {
                 );
             }
             #[inline(always)]
-            unsafe fn fetch_mut<'w>(fetch: Self::Fetch, index: usize) -> Self::Item<'w> {
+            unsafe fn fetch_mut<'w>(fetch: &Self::Fetch, index: usize) -> Self::Item<'w> {
                 let tuple_res = unsafe {
                     <( #(#field_types,)* ) as ::avenix::ecs::query::QueryData>::fetch_mut(
                         fetch,
@@ -210,7 +210,7 @@ pub fn derive_query_data_impl(input: TokenStream) -> TokenStream {
                 #item_construction
             }
             #[inline(always)]
-            unsafe fn fetch_read_only<'w>(fetch: Self::Fetch, index: usize) -> Self::ReadOnlyItem<'w> {
+            unsafe fn fetch_read_only<'w>(fetch: &Self::Fetch, index: usize) -> Self::ReadOnlyItem<'w> {
                 let tuple_res = unsafe {
                     <( #(#field_types,)* ) as ::avenix::ecs::query::QueryData>::fetch_read_only(
                         fetch,
