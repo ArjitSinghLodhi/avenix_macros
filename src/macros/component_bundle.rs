@@ -61,7 +61,7 @@ pub fn derive_bundle_impl(input: TokenStream) -> TokenStream {
             }
 
             #[inline(always)]
-            fn create_empty_columns(columns: &mut ::avenix::indexmap::IndexMap<::std::any::TypeId, ::avenix::extensions::ComponentColumn, ::avenix::fxhash::FxBuildHasher>) {
+            fn create_empty_columns(columns: &mut ::avenix::indexmap::IndexMap<::std::any::TypeId, ::avenix::extensions::ComponentColumn, ::avenix::rustc_hash::FxBuildHasher>) {
                 <(#(#types,)*) as ::avenix::ecs::commands::bundle::ComponentBundle>::create_empty_columns(columns);
             }
 
