@@ -1,7 +1,6 @@
 use proc_macro::TokenStream;
-use proc_macro2::Span;
 use quote::quote;
-use syn::{Data, DeriveInput, Fields, Ident, parse_macro_input};
+use syn::{Data, DeriveInput, Fields, parse_macro_input};
 
 pub fn derive_bundle_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -19,7 +18,6 @@ pub fn derive_bundle_impl(input: TokenStream) -> TokenStream {
 
     let mut types = Vec::new();
     let mut destructure_patterns = Vec::new();
-    let mut tuple_bindings = Vec::new();
 
     match fields {
         Fields::Named(fields_named) => {
@@ -27,15 +25,13 @@ pub fn derive_bundle_impl(input: TokenStream) -> TokenStream {
                 let f_ident = &field.ident;
                 types.push(field.ty.clone());
                 destructure_patterns.push(quote! { #f_ident });
-                tuple_bindings.push(quote! { #f_ident });
             }
         }
         Fields::Unnamed(fields_unnamed) => {
             for (i, field) in fields_unnamed.unnamed.iter().enumerate() {
                 types.push(field.ty.clone());
-                let dummy_ident = Ident::new(&format!("field_{}", i), Span::call_site());
+                let dummy_ident = syn::Ident::new(&format!("field_{}", i), proc_macro2::Span::call_site());
                 destructure_patterns.push(quote! { #dummy_ident });
-                tuple_bindings.push(quote! { #dummy_ident });
             }
         }
         Fields::Unit => {}
@@ -62,22 +58,40 @@ pub fn derive_bundle_impl(input: TokenStream) -> TokenStream {
 
             #[inline(always)]
             fn create_empty_columns(columns: &mut ::avenix::indexmap::IndexMap<::std::any::TypeId, ::avenix::extensions::ComponentColumn, ::avenix::rustc_hash::FxBuildHasher>) {
-                <(#(#types,)*) as ::avenix::ecs::commands::bundle::ComponentBundle>::create_empty_columns(columns);
+                #(
+                    let id = ::std::any::TypeId::of::<#types>();
+                    columns.insert(
+                        id,
+                        ::avenix::extensions::ComponentColumn::new(Vec::<#types>::new()),
+                    );
+                )*
             }
 
             #[inline(always)]
             fn push_to_archetype(self, archetype: &mut ::avenix::extensions::Archetype) {
                 #destructure
-                let tuple_data = (#(#tuple_bindings,)*);
-                ::avenix::ecs::commands::bundle::ComponentBundle::push_to_archetype(tuple_data, archetype);
+                unsafe {
+                    #(
+                        let vec_ptr = archetype.fetch_column_raw::<#types>();
+                        (*vec_ptr).push(#destructure_patterns);
+                    )*
+                }
             }
 
             #[inline(always)]
             unsafe fn insert_to_archetype(self, archetype: &mut ::avenix::extensions::Archetype, row_idx: usize) {
                 #destructure
-                let tuple_data = (#(#tuple_bindings,)*);
                 unsafe {
-                    ::avenix::ecs::commands::bundle::ComponentBundle::insert_to_archetype(tuple_data, archetype, row_idx);
+                    #(
+                        let vec_ptr = archetype.fetch_column_raw::<#types>();
+                        let vec_ref = &mut *vec_ptr;
+                        if row_idx < vec_ref.len() {
+                            ::std::ptr::drop_in_place(&mut vec_ref[row_idx]);
+                            ::std::ptr::write(&mut vec_ref[row_idx], #destructure_patterns);
+                        } else {
+                            vec_ref.push(#destructure_patterns);
+                        }
+                    )*
                 }
             }
 

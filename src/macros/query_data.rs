@@ -138,27 +138,15 @@ pub fn derive_query_data_impl(input: TokenStream) -> TokenStream {
     };
 
     let item_construction = if is_named {
-        let mut fields_named_idents = Vec::new();
-        if let Fields::Named(fields_named) = fields {
-            for field in &fields_named.named {
-                fields_named_idents.push(field.ident.clone().unwrap());
-            }
-        }
-        quote! { #item_struct_name { #( #fields_named_idents: tuple_res.#tuple_indices ),* } }
+        quote! { #item_struct_name { #( #field_idents: <#field_types as ::avenix::ecs::query::QueryData>::fetch_mut(&fetch.#tuple_indices, index) ),* } }
     } else {
-        quote! { #item_struct_name ( #( tuple_res.#tuple_indices ),* ) }
+        quote! { #item_struct_name ( #( <#field_types as ::avenix::ecs::query::QueryData>::fetch_mut(&fetch.#tuple_indices, index) ),* ) }
     };
 
     let readonly_item_construction = if is_named {
-        let mut fields_named_idents = Vec::new();
-        if let Fields::Named(fields_named) = fields {
-            for field in &fields_named.named {
-                fields_named_idents.push(field.ident.clone().unwrap());
-            }
-        }
-        quote! { #readonly_item_name { #( #fields_named_idents: tuple_res.#tuple_indices ),* } }
+        quote! { #readonly_item_name { #( #field_idents: <#field_types as ::avenix::ecs::query::QueryData>::fetch_read_only(&fetch.#tuple_indices, index) ),* } }
     } else {
-        quote! { #readonly_item_name ( #( tuple_res.#tuple_indices ),* ) }
+        quote! { #readonly_item_name ( #( <#field_types as ::avenix::ecs::query::QueryData>::fetch_read_only(&fetch.#tuple_indices, index) ),* ) }
     };
 
     let expanded = quote! {
@@ -171,53 +159,45 @@ pub fn derive_query_data_impl(input: TokenStream) -> TokenStream {
         impl #impl_generics ::avenix::ecs::query::QueryData for #name #ty_generics #where_clause {
             type Item<'w> = #item_struct_name<'w>;
             type ReadOnlyItem<'w> = #readonly_item_name<'w>;
-            type Fetch = <( #(#field_types,)* ) as ::avenix::ecs::query::QueryData>::Fetch;
+            type Fetch = ( #( <#field_types as ::avenix::ecs::query::QueryData>::Fetch, )* );
 
             #[inline(always)]
             fn matches(types: &::avenix::indexmap::IndexSet<::std::any::TypeId, ::avenix::rustc_hash::FxBuildHasher>) -> bool {
                 #link_fields_check
-
-                <( #(#field_types,)* ) as ::avenix::ecs::query::QueryData>::matches(types)
+                true #( && <#field_types as ::avenix::ecs::query::QueryData>::matches(types) )*
             }
+
             #[inline(always)]
             unsafe fn init_fetch(
                 archetype: &::avenix::extensions::Archetype,
             ) -> Self::Fetch {
                 unsafe {
-                    <( #(#field_types,)* ) as ::avenix::ecs::query::QueryData>::init_fetch(
-                        archetype,
-                    )
+                    ( #( <#field_types as ::avenix::ecs::query::QueryData>::init_fetch(archetype), )* )
                 }
             }
+
             #[inline(always)]
             fn collect_access(
                 reads: &mut ::avenix::extensions::AccessVec<::std::any::TypeId>,
                 writes: &mut ::avenix::extensions::AccessVec<::std::any::TypeId>,
             ) {
-                <( #(#field_types,)* ) as ::avenix::ecs::query::QueryData>::collect_access(
-                    reads,
-                    writes,
-                );
+                #(
+                    <#field_types as ::avenix::ecs::query::QueryData>::collect_access(reads, writes);
+                )*
             }
+
             #[inline(always)]
             unsafe fn fetch_mut<'w>(fetch: &Self::Fetch, index: usize) -> Self::Item<'w> {
-                let tuple_res = unsafe {
-                    <( #(#field_types,)* ) as ::avenix::ecs::query::QueryData>::fetch_mut(
-                        fetch,
-                        index,
-                    )
-                };
-                #item_construction
+                unsafe {
+                    #item_construction
+                }
             }
+
             #[inline(always)]
             unsafe fn fetch_read_only<'w>(fetch: &Self::Fetch, index: usize) -> Self::ReadOnlyItem<'w> {
-                let tuple_res = unsafe {
-                    <( #(#field_types,)* ) as ::avenix::ecs::query::QueryData>::fetch_read_only(
-                        fetch,
-                        index,
-                    )
-                };
-                #readonly_item_construction
+                unsafe {
+                    #readonly_item_construction
+                }
             }
         }
     };
