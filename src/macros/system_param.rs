@@ -1,7 +1,7 @@
+use crate::attributes::system_param::SystemParamFieldArgs;
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{Data, DeriveInput, Fields, parse_macro_input};
-use crate::attributes::system_param::SystemParamFieldArgs;
 
 pub fn derive_system_param_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -28,10 +28,11 @@ pub fn derive_system_param_impl(input: TokenStream) -> TokenStream {
         Fields::Named(fields_named) => {
             for field in &fields_named.named {
                 let ident = field.ident.clone().unwrap();
-                let field_args = match SystemParamFieldArgs::parse_from_field_attributes(&field.attrs) {
-                    Ok(args) => args,
-                    Err(err) => return err.to_compile_error().into(),
-                };
+                let field_args =
+                    match SystemParamFieldArgs::parse_from_field_attributes(&field.attrs) {
+                        Ok(args) => args,
+                        Err(err) => return err.to_compile_error().into(),
+                    };
 
                 if field_args.ignore {
                     ignored_idents.push(ident);
@@ -45,10 +46,11 @@ pub fn derive_system_param_impl(input: TokenStream) -> TokenStream {
             for (i, field) in fields_unnamed.unnamed.iter().enumerate() {
                 let dummy_ident =
                     syn::Ident::new(&format!("field_{}", i), proc_macro2::Span::call_site());
-                let field_args = match SystemParamFieldArgs::parse_from_field_attributes(&field.attrs) {
-                    Ok(args) => args,
-                    Err(err) => return err.to_compile_error().into(),
-                };
+                let field_args =
+                    match SystemParamFieldArgs::parse_from_field_attributes(&field.attrs) {
+                        Ok(args) => args,
+                        Err(err) => return err.to_compile_error().into(),
+                    };
 
                 if field_args.ignore {
                     ignored_idents.push(dummy_ident);
@@ -82,7 +84,8 @@ pub fn derive_system_param_impl(input: TokenStream) -> TokenStream {
                 tuple_extractors.push(quote! { ::std::default::Default::default() });
             } else {
                 let ty = &param_types[param_idx];
-                tuple_extractors.push(quote! { <#ty as ::avenix::extensions::SystemParam>::get_param(world) });
+                tuple_extractors
+                    .push(quote! { <#ty as ::avenix::extensions::SystemParam>::get_param(world) });
                 param_idx += 1;
             }
         }

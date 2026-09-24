@@ -27,13 +27,19 @@ pub fn derive_filter_impl(input: TokenStream) -> TokenStream {
             for field in &fields_named.named {
                 field_types.push(field.ty.clone());
                 let ident = field.ident.clone().unwrap();
-                scratch_idents.push(syn::Ident::new(&format!("_{}", ident), proc_macro2::Span::call_site()));
+                scratch_idents.push(syn::Ident::new(
+                    &format!("_{}", ident),
+                    proc_macro2::Span::call_site(),
+                ));
             }
         }
         Fields::Unnamed(fields_unnamed) => {
             for (i, field) in fields_unnamed.unnamed.iter().enumerate() {
                 field_types.push(field.ty.clone());
-                scratch_idents.push(syn::Ident::new(&format!("_field_{}", i), proc_macro2::Span::call_site()));
+                scratch_idents.push(syn::Ident::new(
+                    &format!("_field_{}", i),
+                    proc_macro2::Span::call_site(),
+                ));
             }
         }
         Fields::Unit => {}
@@ -42,13 +48,18 @@ pub fn derive_filter_impl(input: TokenStream) -> TokenStream {
         let mut field_mappings = Vec::new();
         match fields {
             Fields::Named(fields_named) => {
-                for (real_ident, scratch_ident) in fields_named.named.iter().map(|f| f.ident.as_ref().unwrap()).zip(&scratch_idents) {
+                for (real_ident, scratch_ident) in fields_named
+                    .named
+                    .iter()
+                    .map(|f| f.ident.as_ref().unwrap())
+                    .zip(&scratch_idents)
+                {
                     field_mappings.push(quote! { #real_ident: #scratch_ident });
                 }
             }
             _ => {}
         }
-        
+
         quote! {
             if false {
                 let #name { #( #field_mappings ),* } = unsafe { ::std::mem::zeroed() };

@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
-use syn::{DeriveInput, parse_macro_input};
 use quote::quote;
+use syn::{DeriveInput, parse_macro_input};
 
 pub fn derive_event_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);

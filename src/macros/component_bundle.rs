@@ -30,7 +30,8 @@ pub fn derive_bundle_impl(input: TokenStream) -> TokenStream {
         Fields::Unnamed(fields_unnamed) => {
             for (i, field) in fields_unnamed.unnamed.iter().enumerate() {
                 types.push(field.ty.clone());
-                let dummy_ident = syn::Ident::new(&format!("field_{}", i), proc_macro2::Span::call_site());
+                let dummy_ident =
+                    syn::Ident::new(&format!("field_{}", i), proc_macro2::Span::call_site());
                 destructure_patterns.push(quote! { #dummy_ident });
             }
         }
@@ -59,11 +60,7 @@ pub fn derive_bundle_impl(input: TokenStream) -> TokenStream {
             #[inline(always)]
             fn create_empty_columns(columns: &mut ::avenix::indexmap::IndexMap<::std::any::TypeId, ::avenix::extensions::ComponentColumn, ::avenix::rustc_hash::FxBuildHasher>) {
                 #(
-                    let id = ::std::any::TypeId::of::<#types>();
-                    columns.insert(
-                        id,
-                        ::avenix::extensions::ComponentColumn::new(Vec::<#types>::new()),
-                    );
+                    <#types as ComponentBundle>::create_empty_columns(columns);
                 )*
             }
 
@@ -72,8 +69,7 @@ pub fn derive_bundle_impl(input: TokenStream) -> TokenStream {
                 #destructure
                 unsafe {
                     #(
-                        let vec_ptr = archetype.fetch_column_raw::<#types>();
-                        (*vec_ptr).push(#destructure_patterns);
+                        <#types as ComponentBundle>::push_to_archetype(#destructure_patterns, archetype);
                     )*
                 }
             }
@@ -83,14 +79,7 @@ pub fn derive_bundle_impl(input: TokenStream) -> TokenStream {
                 #destructure
                 unsafe {
                     #(
-                        let vec_ptr = archetype.fetch_column_raw::<#types>();
-                        let vec_ref = &mut *vec_ptr;
-                        if row_idx < vec_ref.len() {
-                            ::std::ptr::drop_in_place(&mut vec_ref[row_idx]);
-                            ::std::ptr::write(&mut vec_ref[row_idx], #destructure_patterns);
-                        } else {
-                            vec_ref.push(#destructure_patterns);
-                        }
+                        <#types as ComponentBundle>::insert_to_archetype(#destructure_patterns, archetype, row_idx);
                     )*
                 }
             }

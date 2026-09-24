@@ -1,13 +1,13 @@
 extern crate proc_macro;
 mod attributes;
 mod macros {
-    pub mod component_bundle;
-    pub mod query_filter;
-    pub mod query_data;
-    pub mod system_param;
     pub mod component;
-    pub mod resource;
+    pub mod component_bundle;
     pub mod event;
+    pub mod query_data;
+    pub mod query_filter;
+    pub mod resource;
+    pub mod system_param;
 }
 
 use proc_macro::TokenStream;
@@ -22,7 +22,7 @@ pub fn derive_resource(input: TokenStream) -> TokenStream {
     macros::resource::derive_resource_impl(input)
 }
 
-#[proc_macro_derive(Event)] 
+#[proc_macro_derive(Event)]
 pub fn derive_event(input: TokenStream) -> TokenStream {
     macros::event::derive_event_impl(input)
 }

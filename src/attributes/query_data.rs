@@ -11,7 +11,7 @@ impl QueryArgs {
             if inner.path.is_ident("derive") {
                 let content;
                 syn::parenthesized!(content in inner.input);
-                
+
                 let paths: Punctuated<syn::Path, Comma> = Punctuated::parse_terminated(&content)?;
                 for path in paths {
                     self.derives.push(path);

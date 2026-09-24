@@ -18,7 +18,9 @@ impl SystemParamFieldArgs {
                                 args.ignore = true;
                                 Ok(())
                             } else {
-                                Err(inner.error("unrecognized parameter inside avenix(system_param(...))"))
+                                Err(inner.error(
+                                    "unrecognized parameter inside avenix(system_param(...))",
+                                ))
                             }
                         })?;
                         Ok(())

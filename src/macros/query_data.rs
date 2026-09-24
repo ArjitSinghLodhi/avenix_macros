@@ -1,11 +1,11 @@
+use crate::attributes::Args;
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{Data, DeriveInput, Fields, Index, parse_macro_input};
-use crate::attributes::Args;
 
 pub fn derive_query_data_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
-    
+
     let args = match Args::parse_from_attributes(&input.attrs) {
         Ok(parsed) => parsed,
         Err(err) => return err.to_compile_error().into(),
@@ -41,8 +41,11 @@ pub fn derive_query_data_impl(input: TokenStream) -> TokenStream {
                 field_idents.push(ident.clone());
                 field_visibilities.push(field.vis.clone());
                 tuple_indices.push(Index::from(i));
-                
-                scratch_idents.push(syn::Ident::new(&format!("_{}", ident), proc_macro2::Span::call_site()));
+
+                scratch_idents.push(syn::Ident::new(
+                    &format!("_{}", ident),
+                    proc_macro2::Span::call_site(),
+                ));
             }
         }
         Fields::Unnamed(fields_unnamed) => {
@@ -50,8 +53,11 @@ pub fn derive_query_data_impl(input: TokenStream) -> TokenStream {
                 field_types.push(field.ty.clone());
                 field_visibilities.push(field.vis.clone());
                 tuple_indices.push(Index::from(i));
-                
-                scratch_idents.push(syn::Ident::new(&format!("_field_{}", i), proc_macro2::Span::call_site()));
+
+                scratch_idents.push(syn::Ident::new(
+                    &format!("_field_{}", i),
+                    proc_macro2::Span::call_site(),
+                ));
             }
         }
         Fields::Unit => {}
@@ -60,7 +66,12 @@ pub fn derive_query_data_impl(input: TokenStream) -> TokenStream {
     let link_fields_check = if is_named {
         let mut field_mappings = Vec::new();
         if let Fields::Named(fields_named) = fields {
-            for (real_ident, scratch_ident) in fields_named.named.iter().map(|f| f.ident.as_ref().unwrap()).zip(&scratch_idents) {
+            for (real_ident, scratch_ident) in fields_named
+                .named
+                .iter()
+                .map(|f| f.ident.as_ref().unwrap())
+                .zip(&scratch_idents)
+            {
                 field_mappings.push(quote! { #real_ident: #scratch_ident });
             }
         }
@@ -114,26 +125,26 @@ pub fn derive_query_data_impl(input: TokenStream) -> TokenStream {
     };
 
     let item_struct_def = if is_named {
-        quote! { 
+        quote! {
             #derive_macro_tokens
-            #visibility struct #item_struct_name<'w> { #item_fields } 
+            #visibility struct #item_struct_name<'w> { #item_fields }
         }
     } else {
-        quote! { 
+        quote! {
             #derive_macro_tokens
-            #visibility struct #item_struct_name<'w> ( #item_fields ); 
+            #visibility struct #item_struct_name<'w> ( #item_fields );
         }
     };
 
     let readonly_item_def = if is_named {
-        quote! { 
+        quote! {
             #derive_macro_tokens
-            #visibility struct #readonly_item_name<'w> { #readonly_item_fields } 
+            #visibility struct #readonly_item_name<'w> { #readonly_item_fields }
         }
     } else {
-        quote! { 
+        quote! {
             #derive_macro_tokens
-            #visibility struct #readonly_item_name<'w> ( #readonly_item_fields ); 
+            #visibility struct #readonly_item_name<'w> ( #readonly_item_fields );
         }
     };
 

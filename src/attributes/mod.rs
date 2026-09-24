@@ -18,8 +18,7 @@ impl Args {
                     if meta.path.is_ident("query_data") {
                         settings.query_data.parse_nested(&meta)?;
                         Ok(())
-                    } else if meta.path.is_ident("system_param") 
-                    {
+                    } else if meta.path.is_ident("system_param") {
                         if meta.input.peek(syn::token::Paren) {
                             meta.parse_nested_meta(|_| Ok(()))?;
                         }
@@ -34,4 +33,3 @@ impl Args {
         Ok(settings)
     }
 }
-
