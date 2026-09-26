@@ -173,9 +173,9 @@ pub fn derive_query_data_impl(input: TokenStream) -> TokenStream {
             type Fetch = ( #( <#field_types as ::avenix::ecs::query::QueryData>::Fetch, )* );
 
             #[inline(always)]
-            fn matches(types: &::avenix::indexmap::IndexSet<::std::any::TypeId, ::avenix::rustc_hash::FxBuildHasher>) -> bool {
+            fn matches(archetype: &::avenix::extensions::Archetype) -> bool {
                 #link_fields_check
-                true #( && <#field_types as ::avenix::ecs::query::QueryData>::matches(types) )*
+                true #( && <#field_types as ::avenix::ecs::query::QueryData>::matches(archetype) )*
             }
 
             #[inline(always)]

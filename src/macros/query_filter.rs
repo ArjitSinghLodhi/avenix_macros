@@ -44,20 +44,18 @@ pub fn derive_filter_impl(input: TokenStream) -> TokenStream {
         }
         Fields::Unit => {}
     }
+
     let link_fields_check = if is_named {
         let mut field_mappings = Vec::new();
-        match fields {
-            Fields::Named(fields_named) => {
-                for (real_ident, scratch_ident) in fields_named
-                    .named
-                    .iter()
-                    .map(|f| f.ident.as_ref().unwrap())
-                    .zip(&scratch_idents)
-                {
-                    field_mappings.push(quote! { #real_ident: #scratch_ident });
-                }
+        if let Fields::Named(fields_named) = fields {
+            for (real_ident, scratch_ident) in fields_named
+                .named
+                .iter()
+                .map(|f| f.ident.as_ref().unwrap())
+                .zip(&scratch_idents)
+            {
+                field_mappings.push(quote! { #real_ident: #scratch_ident });
             }
-            _ => {}
         }
 
         quote! {
@@ -77,15 +75,28 @@ pub fn derive_filter_impl(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         impl #impl_generics ::avenix::ecs::query::filter::QueryFilter for #name #ty_generics #where_clause {
+            type FilterData = (
+                #( <#field_types as ::avenix::ecs::query::filter::QueryFilter>::FilterData, )*
+            );
+
             #[inline(always)]
-            fn matches(types: &::avenix::extensions::AccessHashSet<::std::any::TypeId>) -> bool {
-                #link_fields_check
-                #( <#field_types as ::avenix::ecs::query::filter::QueryFilter>::matches(types))&&*
+            fn init_filter_data(archetype: &::avenix::extensions::Archetype) -> Self::FilterData {
+                (
+                    #( <#field_types as ::avenix::ecs::query::filter::QueryFilter>::init_filter_data(archetype), )*
+                )
             }
 
             #[inline(always)]
-            fn matches_negated(types: &::avenix::extensions::AccessHashSet<::std::any::TypeId>) -> bool {
-                #( <#field_types as ::avenix::ecs::query::filter::QueryFilter>::matches_negated(types) )&&*
+            fn matches(archetype: &::avenix::extensions::Archetype) -> bool {
+                #link_fields_check
+                #( <#field_types as ::avenix::ecs::query::filter::QueryFilter>::matches(archetype))&&*
+            }
+
+            #[inline(always)]
+            fn matches_row(filter_data: &Self::FilterData, row_idx: usize) -> bool {
+                #[allow(non_snake_case)]
+                let ( #( #scratch_idents, )* ) = filter_data;
+                #( <#field_types as ::avenix::ecs::query::filter::QueryFilter>::matches_row(#scratch_idents, row_idx) )&&*
             }
 
             #[inline(always)]
@@ -95,16 +106,6 @@ pub fn derive_filter_impl(input: TokenStream) -> TokenStream {
             ) {
                 #(
                     <#field_types as ::avenix::ecs::query::filter::QueryFilter>::collect_filter(withs, withouts);
-                )*
-            }
-
-            #[inline(always)]
-            fn filter_indices(
-                archetype: &::avenix::extensions::Archetype,
-                indices: &mut ::std::vec::Vec<usize>,
-            ) {
-                #(
-                    <#field_types as ::avenix::ecs::query::filter::QueryFilter>::filter_indices(archetype, indices);
                 )*
             }
         }
