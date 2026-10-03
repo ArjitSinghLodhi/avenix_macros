@@ -1,15 +1,16 @@
 extern crate proc_macro;
 mod attributes;
 mod macros {
-    pub mod component;
-    pub mod component_bundle;
-    pub mod event;
-    pub mod parallel_system_param;
-    pub mod query_data;
-    pub mod query_filter;
-    pub mod resource;
-    pub mod schedule_label;
-    pub mod system_param;
+    pub(crate) mod component;
+    pub(crate) mod component_bundle;
+    pub(crate) mod event;
+    pub(crate) mod parallel_system_param;
+    pub(crate) mod query_data;
+    pub(crate) mod query_filter;
+    pub(crate) mod resource;
+    pub(crate) mod schedule_label;
+    pub(crate) mod system_param;
+    pub(crate) mod states;
 }
 
 use proc_macro::TokenStream;
@@ -57,4 +58,9 @@ pub fn derive_parallel_system_param(input: TokenStream) -> TokenStream {
 #[proc_macro_derive(ScheduleLabel)]
 pub fn derive_schedule_label(input: TokenStream) -> TokenStream {
     macros::schedule_label::derive_schedule_label_impl(input)
+}
+
+#[proc_macro_derive(States)]
+pub fn derive_states(input: TokenStream) -> TokenStream {
+    macros::states::derive_states_impl(input)
 }
