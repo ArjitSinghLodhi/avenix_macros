@@ -107,7 +107,7 @@ pub fn derive_system_param_impl(input: TokenStream) -> TokenStream {
 
             #[inline(always)]
             fn get_param(
-                world: &mut ::avenix::extensions::World,
+                world: &::avenix::extensions::World,
             ) -> Self {
                 #extract_fields
             }
