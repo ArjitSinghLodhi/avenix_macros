@@ -9,8 +9,9 @@ mod macros {
     pub(crate) mod query_filter;
     pub(crate) mod resource;
     pub(crate) mod schedule_label;
-    pub(crate) mod system_param;
     pub(crate) mod states;
+    pub(crate) mod system_param;
+    pub(crate) mod system_set;
 }
 
 use proc_macro::TokenStream;
@@ -63,4 +64,9 @@ pub fn derive_schedule_label(input: TokenStream) -> TokenStream {
 #[proc_macro_derive(States)]
 pub fn derive_states(input: TokenStream) -> TokenStream {
     macros::states::derive_states_impl(input)
+}
+
+#[proc_macro_derive(SystemSet)]
+pub fn derive_system_set(input: TokenStream) -> TokenStream {
+    macros::system_set::derive_system_set_impl(input)
 }
