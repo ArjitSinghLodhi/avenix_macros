@@ -9,7 +9,7 @@ pub fn derive_schedule_label_impl(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         impl #impl_generics avenix::app::schedule::ScheduleLabel for #name #ty_generics #where_clause {
-            fn clone_box(&self) -> Box<dyn avenix::app:schedule::ScheduleLabel {
+            fn clone_box(&self) -> Box<dyn avenix::app::schedule::ScheduleLabel> {
                 Box::new(self.clone())
             }
         }
