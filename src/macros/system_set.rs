@@ -18,7 +18,7 @@ pub fn derive_system_set_impl(input: TokenStream) -> TokenStream {
                 gates: Vec<avenix::app::system::condition::ConditionFn>,
                 shared_flag: std::sync::Arc<std::sync::atomic::AtomicBool>,
             ) -> avenix::app::schedule::SystemNode {
-                avenix::app::schedule::SystemNode::new(avenix::app::system::system_set::GuardNode::<Self>::new(gates, shared_flag))
+                avenix::app::schedule::SystemNode::new(avenix::app::system::system_set::GuardNode::<Self>::new(self.clone_box(), gates, shared_flag))
             }
         }
     };
