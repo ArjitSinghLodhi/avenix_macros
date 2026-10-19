@@ -31,12 +31,12 @@ pub fn derive_event(input: TokenStream) -> TokenStream {
     macros::event::derive_event_impl(input)
 }
 
-#[proc_macro_derive(ComponentBundle, attributes(avenix))]
+#[proc_macro_derive(ComponentBundle)]
 pub fn derive_bundle(input: TokenStream) -> TokenStream {
     macros::component_bundle::derive_bundle_impl(input)
 }
 
-#[proc_macro_derive(QueryFilter, attributes(avenix))]
+#[proc_macro_derive(QueryFilter)]
 pub fn derive_filter(input: TokenStream) -> TokenStream {
     macros::query_filter::derive_filter_impl(input)
 }
