@@ -66,7 +66,7 @@ pub fn derive_system_param_impl(input: TokenStream) -> TokenStream {
     let extract_fields = if is_named {
         quote! {
             #name {
-                #( #param_idents: <#param_types as ::avenix::extensions::SystemParam>::get_param(world), )*
+                #( #param_idents: <#param_types as ::avenix::app::system::SystemParam>::get_param(world), )*
                 #( #ignored_idents: ::std::default::Default::default(), )*
             }
         }
@@ -85,7 +85,7 @@ pub fn derive_system_param_impl(input: TokenStream) -> TokenStream {
             } else {
                 let ty = &param_types[param_idx];
                 tuple_extractors
-                    .push(quote! { <#ty as ::avenix::extensions::SystemParam>::get_param(world) });
+                    .push(quote! { <#ty as ::avenix::app::system::SystemParam>::get_param(world) });
                 param_idx += 1;
             }
         }
@@ -98,16 +98,16 @@ pub fn derive_system_param_impl(input: TokenStream) -> TokenStream {
     };
 
     let expanded = quote! {
-        impl #impl_generics ::avenix::extensions::SystemParam for #name #ty_generics #where_clause {
-            fn init_access(system_meta: &mut ::avenix::extensions::SystemMeta) {
+        impl #impl_generics ::avenix::app::system::SystemParam for #name #ty_generics #where_clause {
+            fn init_access(system_meta: &mut ::avenix::app::system::SystemMeta) {
                 #(
-                    <#param_types as ::avenix::extensions::SystemParam>::init_access(system_meta);
+                    <#param_types as ::avenix::app::system::SystemParam>::init_access(system_meta);
                 )*
             }
 
             #[inline(always)]
             fn get_param(
-                world: &::avenix::extensions::World,
+                world: &::avenix::ecs::world::World,
             ) -> Self {
                 #extract_fields
             }

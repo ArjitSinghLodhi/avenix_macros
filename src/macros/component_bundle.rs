@@ -58,14 +58,14 @@ pub fn derive_bundle_impl(input: TokenStream) -> TokenStream {
             }
 
             #[inline(always)]
-            fn create_empty_columns(columns: &mut ::avenix::indexmap::IndexMap<::std::any::TypeId, ::avenix::extensions::ComponentColumn, ::avenix::rustc_hash::FxBuildHasher>) {
+            fn create_empty_columns(columns: &mut ::avenix::indexmap::IndexMap<::std::any::TypeId, ::avenix::ecs::world::archetypes::ComponentColumn, ::avenix::rustc_hash::FxBuildHasher>) {
                 #(
                     <#types as ComponentBundle>::create_empty_columns(columns);
                 )*
             }
 
             #[inline(always)]
-            fn push_to_archetype(self, archetype: &mut ::avenix::extensions::Archetype) {
+            fn push_to_archetype(self, archetype: &mut ::avenix::ecs::world::archetypes::Archetype) {
                 #destructure
                 unsafe {
                     #(
@@ -75,7 +75,7 @@ pub fn derive_bundle_impl(input: TokenStream) -> TokenStream {
             }
 
             #[inline(always)]
-            unsafe fn insert_to_archetype(self, archetype: &mut ::avenix::extensions::Archetype, row_idx: usize) {
+            unsafe fn insert_to_archetype(self, archetype: &mut ::avenix::ecs::world::archetypes::Archetype, row_idx: usize) {
                 #destructure
                 unsafe {
                     #(

@@ -79,33 +79,38 @@ pub fn derive_filter_impl(input: TokenStream) -> TokenStream {
                 #( <#field_types as ::avenix::ecs::query::filter::QueryFilter>::FilterData<'w>, )*
             );
 
-            #[inline(always)]
-            fn init_filter_data<'w>(archetype: &::avenix::extensions::Archetype) -> Self::FilterData<'w> {
+            fn init_filter_data<'w>(archetype: &::avenix::ecs::world::archetypes::Archetype) -> Self::FilterData<'w> {
                 (
                     #( <#field_types as ::avenix::ecs::query::filter::QueryFilter>::init_filter_data(archetype), )*
                 )
             }
 
-            #[inline(always)]
-            fn matches(archetype: &::avenix::extensions::Archetype) -> bool {
+            fn matches(archetype: &::avenix::ecs::world::archetypes::Archetype) -> bool {
                 #link_fields_check
                 #( <#field_types as ::avenix::ecs::query::filter::QueryFilter>::matches(archetype))&&*
             }
 
-            #[inline(always)]
             fn matches_row<'w>(filter_data: &Self::FilterData<'w>, row_idx: usize) -> bool {
                 #[allow(non_snake_case)]
                 let ( #( #scratch_idents, )* ) = filter_data;
                 #( <#field_types as ::avenix::ecs::query::filter::QueryFilter>::matches_row(#scratch_idents, row_idx) )&&*
             }
 
-            #[inline(always)]
             fn collect_filter(
-                withs: &mut ::avenix::extensions::AccessVec<::std::any::TypeId>,
-                withouts: &mut ::avenix::extensions::AccessVec<::std::any::TypeId>,
+                withs: &mut ::avenix::app::system::AccessVec<::std::any::TypeId>,
+                withouts: &mut ::avenix::app::system::AccessVec<::std::any::TypeId>,
             ) {
                 #(
                     <#field_types as ::avenix::ecs::query::filter::QueryFilter>::collect_filter(withs, withouts);
+                )*
+            }
+
+            fn collect_filter_access(
+                reads: &mut ::avenix::app::system::AccessVec<::std::any::TypeId>,
+                writes: &mut ::avenix::app::system::AccessVec<::std::any::TypeId>
+            ) {
+                #(
+                    <#field_types as ::avenix::ecs::query::filter::QueryFilter>::collect_filter_access(reads, writes);
                 )*
             }
         }

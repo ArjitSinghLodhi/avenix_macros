@@ -173,14 +173,14 @@ pub fn derive_query_data_impl(input: TokenStream) -> TokenStream {
             type Fetch<'w> = ( #( <#field_types as ::avenix::ecs::query::QueryData>::Fetch<'w>, )* );
 
             #[inline(always)]
-            fn matches(archetype: &::avenix::extensions::Archetype) -> bool {
+            fn matches(archetype: &::avenix::ecs::world::archetypes::Archetype) -> bool {
                 #link_fields_check
                 true #( && <#field_types as ::avenix::ecs::query::QueryData>::matches(archetype) )*
             }
 
             #[inline(always)]
             unsafe fn init_fetch<'w>(
-                archetype: &'w ::avenix::extensions::Archetype,
+                archetype: &'w ::avenix::ecs::world::archetypes::Archetype,
             ) -> Self::Fetch<'w> {
                 unsafe {
                     ( #( <#field_types as ::avenix::ecs::query::QueryData>::init_fetch(archetype), )* )
@@ -189,8 +189,8 @@ pub fn derive_query_data_impl(input: TokenStream) -> TokenStream {
 
             #[inline(always)]
             fn collect_access(
-                reads: &mut ::avenix::extensions::AccessVec<::std::any::TypeId>,
-                writes: &mut ::avenix::extensions::AccessVec<::std::any::TypeId>,
+                reads: &mut ::avenix::app::system::AccessVec<::std::any::TypeId>,
+                writes: &mut ::avenix::app::system::AccessVec<::std::any::TypeId>,
             ) {
                 #(
                     <#field_types as ::avenix::ecs::query::QueryData>::collect_access(reads, writes);
