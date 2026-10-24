@@ -9,7 +9,7 @@ pub fn derive_system_set_impl(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         impl #impl_generics avenix::app::system::system_set::SystemSet for #name #ty_generics #where_clause {
-            fn clone_box(&self) -> std::boxed::Box<dyn avenix::app::system::system_set::SystemSet> {
+            fn dyn_clone(&self) -> std::boxed::Box<dyn avenix::app::system::system_set::SystemSet> {
                 Box::new(std::clone::Clone::clone(self))
             }
 
@@ -18,7 +18,7 @@ pub fn derive_system_set_impl(input: TokenStream) -> TokenStream {
                 gates: Vec<avenix::app::system::condition::ConditionFn>,
                 shared_flag: std::sync::Arc<std::sync::atomic::AtomicBool>,
             ) -> avenix::app::schedule::SystemNode {
-                avenix::app::schedule::SystemNode::new(avenix::app::system::system_set::GuardNode::<Self>::new(self.clone_box(), gates, shared_flag))
+                avenix::app::schedule::SystemNode::new(avenix::app::system::system_set::GuardNode::<Self>::new(self.dyn_clone(), gates, shared_flag))
             }
         }
     };
