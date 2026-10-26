@@ -115,7 +115,8 @@ pub fn derive_system_param_impl(input: TokenStream) -> TokenStream {
                 tuple_constructors.push(quote! { ::std::default::Default::default() });
             } else {
                 let ty = &param_types[param_idx];
-                let binding_ident = syn::Ident::new(&format!("param_{}", i), proc_macro2::Span::call_site());
+                let binding_ident =
+                    syn::Ident::new(&format!("param_{}", i), proc_macro2::Span::call_site());
                 tuple_bindings.push(quote! {
                     let #binding_ident = <#ty as ::avenix::app::system::SystemParam>::get_param(world);
                 });

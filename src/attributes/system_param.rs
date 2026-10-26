@@ -10,25 +10,13 @@ impl SystemParamFieldArgs {
         let mut args = Self::default();
 
         for attr in attrs {
-            if attr.path().is_ident("avenix") {
+            if attr.path().is_ident("system_param") {
                 attr.parse_nested_meta(|meta| {
-                    if meta.path.is_ident("system_param") {
-                        meta.parse_nested_meta(|inner| {
-                            if inner.path.is_ident("ignore") {
-                                args.ignore = true;
-                                Ok(())
-                            } else {
-                                Err(inner.error(
-                                    "unrecognized parameter inside avenix(system_param(...))",
-                                ))
-                            }
-                        })?;
+                    if meta.path.is_ident("ignore") {
+                        args.ignore = true;
                         Ok(())
                     } else {
-                        if meta.input.peek(syn::token::Paren) {
-                            meta.parse_nested_meta(|_| Ok(()))?;
-                        }
-                        Ok(())
+                        Err(meta.error("unrecognized parameter inside system_param(...)"))
                     }
                 })?;
             }

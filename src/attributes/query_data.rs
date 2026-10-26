@@ -1,4 +1,4 @@
-use syn::{Result, meta::ParseNestedMeta, punctuated::Punctuated, token::Comma};
+use syn::{Attribute, Result, punctuated::Punctuated, token::Comma};
 
 #[derive(Default)]
 pub struct QueryArgs {
@@ -6,20 +6,29 @@ pub struct QueryArgs {
 }
 
 impl QueryArgs {
-    pub fn parse_nested(&mut self, meta: &ParseNestedMeta) -> Result<()> {
-        meta.parse_nested_meta(|inner| {
-            if inner.path.is_ident("derive") {
-                let content;
-                syn::parenthesized!(content in inner.input);
+    pub fn parse_from_attributes(attrs: &[Attribute]) -> Result<Self> {
+        let mut args = Self::default();
 
-                let paths: Punctuated<syn::Path, Comma> = Punctuated::parse_terminated(&content)?;
-                for path in paths {
-                    self.derives.push(path);
-                }
-                Ok(())
-            } else {
-                Err(inner.error("unrecognized parameter inside avenix(query_data(...))"))
+        for attr in attrs {
+            if attr.path().is_ident("query_data") {
+                attr.parse_nested_meta(|meta| {
+                    if meta.path.is_ident("derive") {
+                        let content;
+                        syn::parenthesized!(content in meta.input);
+
+                        let paths: Punctuated<syn::Path, Comma> =
+                            Punctuated::parse_terminated(&content)?;
+                        for path in paths {
+                            args.derives.push(path);
+                        }
+                        Ok(())
+                    } else {
+                        Err(meta.error("unrecognized parameter inside query_data(...)"))
+                    }
+                })?;
             }
-        })
+        }
+
+        Ok(args)
     }
 }

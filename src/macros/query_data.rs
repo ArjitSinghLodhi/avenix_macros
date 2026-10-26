@@ -1,12 +1,13 @@
-use crate::attributes::Args;
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{Data, DeriveInput, Fields, Index, parse_macro_input};
 
+use crate::attributes::query_data::QueryArgs;
+
 pub fn derive_query_data_impl(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    let args = match Args::parse_from_attributes(&input.attrs) {
+    let args = match QueryArgs::parse_from_attributes(&input.attrs) {
         Ok(parsed) => parsed,
         Err(err) => return err.to_compile_error().into(),
     };
@@ -117,7 +118,7 @@ pub fn derive_query_data_impl(input: TokenStream) -> TokenStream {
         }
     };
 
-    let query_derives = &args.query_data.derives;
+    let query_derives = &args.derives;
     let derive_macro_tokens = if !query_derives.is_empty() {
         quote! { #[derive(#(#query_derives),*)] }
     } else {

@@ -16,7 +16,7 @@ mod macros {
 
 use proc_macro::TokenStream;
 
-#[proc_macro_derive(Component)]
+#[proc_macro_derive(Component, attributes(component))]
 pub fn derive_component(input: TokenStream) -> TokenStream {
     macros::component::derive_component_impl(input)
 }
@@ -31,7 +31,7 @@ pub fn derive_event(input: TokenStream) -> TokenStream {
     macros::event::derive_event_impl(input)
 }
 
-#[proc_macro_derive(ComponentBundle)]
+#[proc_macro_derive(ComponentBundle, attributes(component_bundle))]
 pub fn derive_bundle(input: TokenStream) -> TokenStream {
     macros::component_bundle::derive_bundle_impl(input)
 }
@@ -41,12 +41,12 @@ pub fn derive_filter(input: TokenStream) -> TokenStream {
     macros::query_filter::derive_filter_impl(input)
 }
 
-#[proc_macro_derive(QueryData, attributes(avenix))]
+#[proc_macro_derive(QueryData, attributes(query_data))]
 pub fn derive_world_query(input: TokenStream) -> TokenStream {
     macros::query_data::derive_query_data_impl(input)
 }
 
-#[proc_macro_derive(SystemParam, attributes(avenix))]
+#[proc_macro_derive(SystemParam, attributes(system_param))]
 pub fn derive_system_param(input: TokenStream) -> TokenStream {
     macros::system_param::derive_system_param_impl(input)
 }
