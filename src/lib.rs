@@ -56,7 +56,7 @@ pub fn derive_parallel_system_param(input: TokenStream) -> TokenStream {
     macros::parallel_system_param::derive_parallel_system_param_impl(input)
 }
 
-#[proc_macro_derive(ScheduleLabel)]
+#[proc_macro_derive(ScheduleLabel, attributes(schedule_label))]
 pub fn derive_schedule_label(input: TokenStream) -> TokenStream {
     macros::schedule_label::derive_schedule_label_impl(input)
 }
